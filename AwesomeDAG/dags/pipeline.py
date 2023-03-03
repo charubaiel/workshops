@@ -2,7 +2,9 @@ from dagster import (define_asset_job,
                     schedule,
                     repository,
                     with_resources)
+
 from dagstermill import local_output_notebook_io_manager
+
 from dags.ops import (download_imdb_crew,
                 download_imdb_names,
                 download_imdb_principals,
@@ -11,7 +13,6 @@ from dags.ops import (download_imdb_crew,
                 )
 from dags.ops import (clean_cast,
                  clean_crew,
-                #  clean_names,
                  clean_titles,
                  create_title_dict,
                  create_names_dict
@@ -52,7 +53,6 @@ def avito_dagster_parse():
             download_imdb_titles,
             clean_cast,
             clean_crew,
-            # clean_names,
             clean_titles,
             create_title_dict,
             create_names_dict,

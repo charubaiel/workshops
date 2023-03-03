@@ -1,6 +1,5 @@
 import pandas as pd
 from dagster import asset,AssetIn,file_relative_path
-from tqdm import tqdm
 import warnings
 from dagstermill import define_dagstermill_asset
 warnings.simplefilter('ignore')
@@ -43,7 +42,7 @@ def download_imdb_principals(ratings:pd.DataFrame) -> pd.DataFrame:
 
     category_list = ['cinematographer','actor','actress']
     filter = 'tconst in @ratings.index & category in @category_list'
-    for sample in tqdm(data_iterator):
+    for sample in data_iterator:
 
         result_list.append(sample.query(filter))
     
@@ -61,7 +60,7 @@ def download_imdb_crew(ratings:pd.DataFrame) -> pd.DataFrame:
                                 chunksize=100000)
     result_list = []
 
-    for sample in tqdm(data_iterator):
+    for sample in data_iterator:
         result_list.append(sample[sample['tconst'].isin(ratings.index)])
     
     return pd.concat(result_list)
@@ -79,7 +78,7 @@ def download_imdb_titles(ratings:pd.DataFrame) -> pd.DataFrame:
     result_list = []
     category_types = ['movie','tvMovie','tvMiniSeries']
     filter = 'tconst in @ratings.index & titleType in @category_types'
-    for sample in tqdm(data_iterator):
+    for sample in data_iterator:
         result_list.append(sample.query(filter))
     result = pd.concat(result_list)
 
@@ -130,9 +129,9 @@ def clean_titles(titles:pd.DataFrame) -> pd.DataFrame:
     titles['startYear'] = titles['startYear'].replace('\\N',None).astype(float)
     titles['runtimeMinutes'] = titles['runtimeMinutes'].replace('\\N',None).astype(float)
 
-    titles = pd.get_dummies(titles.explode('genres'),columns=['genres'])
+    # titles = pd.get_dummies(titles.explode('genres'),columns=['genres'])
                             
-    titles = titles.drop(['endYear','originalTitle'],axis=1)
+    # titles = titles.drop(['endYear','originalTitle'],axis=1)
     
     return titles.groupby('tconst').max()
 
