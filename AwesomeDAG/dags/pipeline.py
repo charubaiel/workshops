@@ -12,12 +12,13 @@ from dags.ops import (download_imdb_crew,
                 download_imdb_titles
                 )
 from dags.ops import (clean_cast,
-                 clean_crew,
-                 clean_titles,
-                 create_title_dict,
-                 create_names_dict
+                      clean_names,
+                        clean_crew,
+                        clean_titles,
+                        create_title_dict,
+                        create_names_dict
                 )
-from dags.ops import result_dataset,save_data,asset_notebook
+from dags.ops import result_dataset,save_data,save_big_data,asset_notebook
 
 
 update_imdb = define_asset_job(name='update_imdb_data',
@@ -53,11 +54,13 @@ def avito_dagster_parse():
             download_imdb_titles,
             clean_cast,
             clean_crew,
+            clean_names,
             clean_titles,
             create_title_dict,
             create_names_dict,
             result_dataset,
             save_data,
+            save_big_data,
             asset_notebook
             ]
 

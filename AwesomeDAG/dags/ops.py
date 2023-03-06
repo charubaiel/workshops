@@ -3,7 +3,8 @@ from dagster import asset,AssetIn,file_relative_path
 import warnings
 from dagstermill import define_dagstermill_asset
 warnings.simplefilter('ignore')
-
+import pathlib
+ROOT = pathlib.Path(__file__).parent
 
 @asset(name='ratings',group_name='download')
 def download_imdb_ratings(context) -> pd.DataFrame:
@@ -168,12 +169,21 @@ def result_dataset(clean_titles:pd.DataFrame,
     return result
         
 
-@asset(name = 'save_data',group_name='result')
+@asset(name = 'save_data',group_name='save')
 def save_data(final_df:pd.DataFrame,
                     ) -> None:
-    final_df.to_parquet('data/imdb_data.parquet')
+    final_df.to_parquet(f'{ROOT}/data/imdb_data.parquet')
     return None
     
+
+
+@asset(name='save_big_data',group_name='save')
+def save_big_data(clean_names:pd.DataFrame) -> None:
+    clean_names.to_parquet(f'{ROOT}/data/names.parquet')
+    return None
+
+
+
 
 
 asset_notebook = define_dagstermill_asset(
