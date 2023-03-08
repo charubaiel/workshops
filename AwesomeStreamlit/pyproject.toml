@@ -1,20 +1,18 @@
 [tool.poetry]
-name = "awesomedag"
+name = "awesomestreamlit"
 version = "0.1.0"
 description = ""
 authors = ["Charubaiel <aleksandrin.a@mail.ru>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-dagster = "^1.1.21"
-dagit = "^1.1.21"
-pandas = "^1.5.3"
-dagstermill = "^0.17.21"
+python = ">=3.8,<3.9.7 || >3.9.7,<4.0"
+streamlit = "^1.19.0"
+plotly = "^5.13.1"
 matplotlib = "^3.7.1"
-pyarrow = "^11.0.0"
+pandas = "^1.5.3"
 
-[tool.poetry.dev-dependencies]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
