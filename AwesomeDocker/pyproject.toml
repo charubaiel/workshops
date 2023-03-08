@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "awesomedocker"
+version = "0.1.0"
+description = ""
+authors = ["Charubaiel <aleksandrin.a@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+boto3 = "^1.26.86"
+dotenv = "^0.0.5"
+mlflow = "^2.2.1"
+psycopg2-binary = "^2.9.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

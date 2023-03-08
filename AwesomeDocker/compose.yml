@@ -1,0 +1,75 @@
+version: '3.10'
+
+services:
+  # БД всего проекта под логи, артефакты и тд
+  mlops_db:
+    # user: "${UID}:${GID}"
+    image: postgres:14
+    restart: always
+    container_name: mlops_db
+    volumes: 
+      - ./data/storage_db:/var/lib/postgresql/data
+      - ./params/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
+    environment: 
+      - MLFLOW_DB=${MLFLOW_DB}
+      - POSTGRES_USER=${MLOPS_DB_USER}
+      - POSTGRES_PASSWORD=${MLOPS_DB_PASSWORD}
+    expose:
+      - ${MLOPS_DB_PORT}
+    command: -p ${MLOPS_DB_PORT}
+    networks:
+      - mlflow_net
+  # data lake для хранения мелких артифактов и моделей
+  s3:
+    # user: "${UID}:${GID}"
+    image: minio/minio
+    restart: always
+    container_name: mlflow_s3
+    ports:
+      - "${S3_PORT}:${S3_PORT}"
+      - "${S3_CONSOLE_PORT}:${S3_CONSOLE_PORT}"
+    volumes:
+      - ./data/storage_minio:/data/
+    environment:
+      MINIO_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      MINIO_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+    command: server --address ":${S3_PORT}" --console-address ":${S3_CONSOLE_PORT}" /data/
+    networks:
+      - mlflow_net
+  # Сервер трекинга и организации ML работ
+  mlflow_server:
+    # user: "${UID}:${GID}"
+    image: mlflow_server
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfile
+    container_name: mlflow_server
+    environment:
+      - BACKEND=postgresql://${MLOPS_DB_USER}:${MLOPS_DB_PASSWORD}@mlops_db:${MLOPS_DB_PORT}/${MLFLOW_DB}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - ARTIFACTS=s3://${AWS_BUCKET_NAME}
+      - MLFLOW_S3_ENDPOINT_URL=http://s3:${S3_PORT}
+    ports:
+      - ${MLFLOW_PORT}:${MLFLOW_PORT}
+    command: 
+      - sh
+      - -c
+      - mlflow server 
+        --host 0.0.0.0
+        --port ${MLFLOW_PORT}
+        --serve-artifacts
+        --backend-store-uri $${BACKEND} 
+        --artifacts-destination $${ARTIFACTS}
+    depends_on: 
+      - mlops_db
+      - s3
+    networks:
+      - mlflow_net
+
+networks:
+  mlflow_net:
+    driver: bridge
+    name : 'mlflow_net'
+
